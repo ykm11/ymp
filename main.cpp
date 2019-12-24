@@ -1,5 +1,4 @@
 #include "ymp.hpp"
-#include<iostream>
 
 int main() {
     ymp_class a, b, c;
@@ -9,11 +8,9 @@ int main() {
     dump(a);
     dump(b);
 
-    //c.setSize(a.N);
     add(c, a, b);
     dump(c);
 
-    //c.setSize(2*a.N);
     mul(c, a, a);
     dump(c);
 

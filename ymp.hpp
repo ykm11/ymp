@@ -3,7 +3,6 @@
 #include <cstdlib>
 #include <iostream>
 #include <string>
-#include <algorithm>
 
 class ymp_class;
 void dump(const ymp_class &v);
@@ -13,18 +12,10 @@ void mul(ymp_class &z, const ymp_class &x, const ymp_class &y);
 void sqr(ymp_class &z, const ymp_class &x);
 int cmp(const ymp_class &x, const ymp_class &y);
 
+inline void valCopy(ymp_class &z, const ymp_class &x);
+inline void lshift(unsigned char v[], size_t n, size_t shift);
+inline bool isStrNops(size_t found);
 
-inline void lshift(unsigned char v[], size_t n, size_t shift) {
-    v[n-1] <<= shift;
-    for (size_t i = n-1; i > 0; i--) {
-        v[i] += (v[i-1] >> (8 - shift));
-        v[i-1] <<= shift;
-    }
-}
-
-inline bool isStrNops(size_t found) {
-    return (found == std::string::npos);
-}
 
 class ymp_class {
 public:
@@ -63,14 +54,14 @@ public:
                 if ((l & 1) == 0) {
                     for (size_t i = 0; i < N; i++) {
                         found = hex.find(str[2*i]);
-                        if (found == std::string::npos) {
+                        if (isStrNops(found)) {
                             fputs("Invalid sqeuance", stderr);
                             abort();
                         }
                         value[N-i-1] = ((unsigned char)found) << 4;
 
                         found = hex.find(str[2*i+1]);
-                        if (found == std::string::npos) {
+                        if (isStrNops(found)) {
                             fputs("Invalid sqeuance", stderr);
                             abort();
                         }
@@ -78,21 +69,21 @@ public:
                     }
                 } else {
                     found = hex.find(str[0]);
-                    if (found == std::string::npos) {
+                    if (isStrNops(found)) {
                             fputs("Invalid sqeuance", stderr);
                             abort();
                     }   
                     value[N-1] = (unsigned char)found;
                     for (size_t i = 1; i < N; i++) {
                         found = hex.find(str[2*i-1]);
-                        if (found == std::string::npos) {
+                        if (isStrNops(found)) {
                             fputs("Invalid sqeuance", stderr);
                             abort();
                         }                    
                         value[N-i-1] = ((unsigned char)found) << 4;
 
                         found = hex.find(str[2*i]);
-                        if (found == std::string::npos) {
+                        if (isStrNops(found)) {
                             fputs("Invalid sqeuance", stderr);
                             abort();
                         }                    
@@ -115,5 +106,17 @@ public:
 inline void valCopy(ymp_class &z, const ymp_class &x) {
     z.setSize(x.N);
     for (size_t i = 0; i < x.N; i++) z.value[i] = x.value[i];
+}
+
+inline void lshift(unsigned char v[], size_t n, size_t shift) {
+    v[n-1] <<= shift;
+    for (size_t i = n-1; i > 0; i--) {
+        v[i] += (v[i-1] >> (8 - shift));
+        v[i-1] <<= shift;
+    }
+}
+
+inline bool isStrNops(size_t found) {
+    return (found == std::string::npos);
 }
 

@@ -2,6 +2,7 @@
 #include "miscCalc.hpp"
 #include <limits.h>
 #include <stdio.h>
+#include <cstring>
 
 void ymp_class::setSize(size_t new_size) {
     if (value != NULL) {
