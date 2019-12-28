@@ -57,111 +57,59 @@ int cmp(const ymp_class &x, const ymp_class &y) {
 }
 
 void add(ymp_class &z, const ymp_class &x, const ymp_class &y) {
-    unsigned char carry = 0;
-#if 1
+    unsigned char *tmp = NULL;
+    size_t max_index, z_size;
     if (x.N < y.N) {
-        valCopy(z, y);
-        for (size_t i = 0; i < x.N; i++) {
-            if ((UCHAR_MAX - z.value[i]) < x.value[i]) {
-                z.value[i] = z.value[i] + x.value[i] + carry;
-                carry = 1;
-            } else {
-                if (z.value[i] + x.value[i] == UCHAR_MAX) {
-                    if (carry == 0) {
-                        z.value[i] = UCHAR_MAX;
-                    } else {
-                        z.value[i] = 0;
-                        carry = 1;
-                    }
-                } else {
-                    z.value[i] = z.value[i] + x.value[i] + carry;
-                    carry = 0;
-                }
-            }
-        }
-        if (carry == 1) {
-            for (size_t k = 0; x.N+k < z.N; k++) {
-                if (z.value[x.N+k] == UCHAR_MAX) {
-                    z.value[x.N+k] = 0;
-                } else {
-                    z.value[x.N+k] += 1;
-                    break;
-                }
-            }
-        }
-        return;
-    } else if (x.N > y.N) {
-        valCopy(z, x);
-        for (size_t i = 0; i < y.N; i++) {
-            if ((UCHAR_MAX - z.value[i]) < y.value[i]) {
-                z.value[i] = z.value[i] + y.value[i] + carry;
-                carry = 1;
-            } else {
-                if (z.value[i] + y.value[i] == UCHAR_MAX) {
-                    if (carry == 0) {
-                        z.value[i] = UCHAR_MAX;
-                    } else {
-                        z.value[i] = 0;
-                        carry = 1;
-                    }
-                } else {
-                    z.value[i] = z.value[i] + y.value[i] + carry;
-                    carry = 0;
-                }
-            }
-        }
-        if (carry == 1) {
-            for (size_t k = 0; y.N+k < z.N; k++) {
-                if (z.value[y.N+k] == UCHAR_MAX) {
-                    z.value[y.N+k] = 0;
-                } else {
-                    z.value[y.N+k] += 1;
-                    break;
-                }
-            }
-        }
-        return;
+        max_index = x.N;
+        z_size = y.N;
+        tmp = (unsigned char*)malloc(y.N*sizeof(unsigned char));
+        for (size_t i = 0; i < y.N; i++) tmp[i] = y.value[i];
+    } else {
+        max_index = y.N;
+        z_size = x.N;
+        arrayCopy(tmp, x);
+        tmp = (unsigned char*)malloc(x.N*sizeof(unsigned char));
+        for (size_t i = 0; i < x.N; i++) tmp[i] = x.value[i];
     }
-    valCopy(z, x);
-    for (size_t i = 0; i < y.N; i++) {
-        if ((UCHAR_MAX - z.value[i]) < y.value[i]) {
-            z.value[i] = z.value[i] + y.value[i] + carry;
-            carry = 1;
-        } else {
-            if (z.value[i] + y.value[i] == UCHAR_MAX) {
-                if (carry == 0) {
-                    z.value[i] = UCHAR_MAX;
-                } else {
-                    z.value[i] = 0;
-                    carry = 1;
-                }
-            } else {
-                z.value[i] = z.value[i] + y.value[i] + carry;
-                carry = 0;
-            }
-        }
+    if (tmp == NULL) {
+        abort();
     }
-    return;
-#else
-    for (size_t i = 0; i < x.N; i++) {
+
+    unsigned char carry = 0;
+    for (size_t i = 0; i < max_index; i++) {
         if ((UCHAR_MAX - x.value[i]) < y.value[i]) {
-            z.value[i] = x.value[i] + y.value[i] + carry;
+            tmp[i] = x.value[i] + y.value[i] + carry;
             carry = 1;
         } else {
-            if (x.value[i] + y.value[i] == UCHAR_MAX) {
+            if (tmp[i] + x.value[i] == UCHAR_MAX) {
                 if (carry == 0) {
-                    z.value[i] = UCHAR_MAX;
+                    tmp[i] = UCHAR_MAX;
                 } else {
-                    z.value[i] = 0;
+                    tmp[i] = 0;
                     carry = 1;
                 }
             } else {
-                z.value[i] = x.value[i] + y.value[i] + carry;
+                tmp[i] = x.value[i] + y.value[i] + carry;
                 carry = 0;
             }
         }
     }
-#endif
+    if (carry == 1) {
+        for (size_t k = 0; max_index+k < z.N; k++) {
+            if (tmp[max_index+k] == UCHAR_MAX) {
+                tmp[max_index+k] = 0;
+            } else {
+                tmp[max_index+k] += 1;
+                break;
+            }
+        }
+    }
+
+    z.setSize(z_size);
+    for (size_t i = 0; i < z.N; i++) {
+        z.value[i] = tmp[i];
+    }
+    free(tmp);
 }
 
 void sub(ymp_class &z, const ymp_class &x, const ymp_class &y) { // z <- x - y
@@ -170,37 +118,69 @@ void sub(ymp_class &z, const ymp_class &x, const ymp_class &y) { // z <- x - y
         sub(z, y, x);
         return;
     }
+
+    unsigned char *tmp = NULL;
     unsigned char borrow;
-    size_t max_index;
+    size_t max_index, z_size;
     if (x.N < y.N) {
         max_index = x.N;
-        valCopy(z, y);
+        z_size = y.N;
+        tmp = (unsigned char*)malloc(y.N*sizeof(unsigned char));
+        for (size_t i = 0; i < y.N; i++) tmp[i] = y.value[i];
     } else {
         max_index = y.N;
-        valCopy(z, x);
+        z_size = x.N;
+        tmp = (unsigned char*)malloc(x.N*sizeof(unsigned char));
+        for (size_t i = 0; i < x.N; i++) tmp[i] = x.value[i];
     }
+
+    if (tmp == NULL) {
+        std::cout << "NULLLLLLLLL\n\n";
+        abort();
+    }
+
     borrow = 0;
     for (size_t i = 0; i < max_index; i++) {
         if (x.value[i] < y.value[i]) { 
-            z.value[i] = x.value[i] - y.value[i] - borrow;
+            //z.value[i] = x.value[i] - y.value[i] - borrow;
+            tmp[i] = x.value[i] - y.value[i] - borrow;
             borrow = 1;
         } else {
             if (x.value[i] - y.value[i] == 0) {
                 if (borrow == 1) {
-                    z.value[i] = UCHAR_MAX;
+                    //z.value[i] = UCHAR_MAX;
+                    tmp[i] = UCHAR_MAX;
                 } else {
-                    z.value[i] = 0;
+                    //z.value[i] = 0;
+                    tmp[i] = 0;
                     borrow = 0;
                 }
             } else {
-                z.value[i] = x.value[i] - y.value[i] - borrow;
+                //z.value[i] = x.value[i] - y.value[i] - borrow;
+                tmp[i] = x.value[i] - y.value[i] - borrow;
                 borrow = 0;
             }
         }
     }
     if (borrow == 1) {
-        z.value[z.N-1] -= 1;
+        for (size_t k = 0; max_index+k < z.N; k++) {
+            //if (z.value[max_index+k] == 0) {
+            if (tmp[max_index+k] == 0) {
+                //z.value[max_index+k] = UCHAR_MAX;
+                tmp[max_index+k] = UCHAR_MAX;
+            } else {
+                //z.value[z.N-1] -= 1;
+                tmp[z.N-1] -= 1;
+                break;
+            }
+        }
     }
+
+    z.setSize(z_size);
+    for (size_t i = 0; i < z.N; i++) {
+        z.value[i] = tmp[i];
+    }
+    free(tmp);
 }
 
 void mul(ymp_class &z, const ymp_class &x, const ymp_class &y) {
