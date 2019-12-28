@@ -109,21 +109,16 @@ inline void valCopy(ymp_class &z, const ymp_class &x) {
     for (size_t i = 0; i < x.N; i++) z.value[i] = x.value[i];
 }
 
-inline void arrayCopy(unsigned char *t, const ymp_class &x) {
-    t = (unsigned char*)malloc(x.N*sizeof(unsigned char));
-    if (t == NULL) {
-        abort();
-    }
-    for (size_t i = 0; i < x.N; i++) t[i] = x.value[i];
-}
-
-
 inline void removeHeadZero(ymp_class &z, const ymp_class &x) {
     size_t k = x.N;
     unsigned char *tmp;
     while (x.value[k-1] == 0x00) {
         k--;
     }
+    if (k == x.N) {
+        return;
+    }
+
     tmp = (unsigned char*)malloc(k*sizeof(unsigned char));
     if (tmp == NULL) {
         abort();

@@ -67,7 +67,6 @@ void add(ymp_class &z, const ymp_class &x, const ymp_class &y) {
     } else {
         max_index = y.N;
         z_size = x.N;
-        arrayCopy(tmp, x);
         tmp = (unsigned char*)malloc(x.N*sizeof(unsigned char));
         for (size_t i = 0; i < x.N; i++) tmp[i] = x.value[i];
     }
@@ -181,52 +180,155 @@ void sub(ymp_class &z, const ymp_class &x, const ymp_class &y) { // z <- x - y
         z.value[i] = tmp[i];
     }
     free(tmp);
+    removeHeadZero(z, z);
 }
 
 void mul(ymp_class &z, const ymp_class &x, const ymp_class &y) {
-    z.setSize(2*x.N);
+    unsigned char *tmp = NULL;
+    size_t z_size = x.N + y.N;
+    tmp = (unsigned char*)malloc(z_size*sizeof(unsigned char));
+    if (tmp == NULL) {
+        abort();
+    }
+    memset(tmp, 0, z_size);
     unsigned char t[2]; 
     unsigned char carry;
     for (size_t i = 0; i < x.N; i++) {
         for (size_t j = 0; j < y.N; j++) {
             carry = 0;
             mul(t, x.value[i], y.value[j]);
-            if (UCHAR_MAX - z.value[i+j] < t[0]) {
+            if (UCHAR_MAX - tmp[i+j] < t[0]) {
                 carry = 1;
             }
-            z.value[i+j] += t[0];
+            tmp[i+j] += t[0];
               
-            if (UCHAR_MAX - z.value[i+j+1] < t[1]) { // carry 発生
-                z.value[i+j+1] += t[1] + carry;
-                for (size_t k = 2; i+j+k < z.N-1; k++) {
-                    if (z.value[i+j+k] == UCHAR_MAX) {
-                        z.value[i+j+k] = 0;
+            if (UCHAR_MAX - tmp[i+j+1] < t[1]) { // carry 発生
+                tmp[i+j+1] += t[1] + carry;
+                for (size_t k = 2; i+j+k < z_size; k++) {
+                    if (tmp[i+j+k] == UCHAR_MAX) {
+                        tmp[i+j+k] = 0;
                     } else {
-                        z.value[i+j+k] += 1;
+                        tmp[i+j+k] += 1;
                         break;
                     }
                 }
             } else {
-                if (carry == 1 && z.value[i+j+1] + t[1] == UCHAR_MAX) {
-                    z.value[i+j+1] = 0;
-                    for (size_t k = 2; i+j+k < z.N-1; k++) {
-                        if (z.value[i+j+k] == UCHAR_MAX) {
-                            z.value[i+j+k] = 0;
+                if (carry == 1 && tmp[i+j+1] + t[1] == UCHAR_MAX) {
+                    tmp[i+j+1] = 0;
+                    for (size_t k = 2; i+j+k < z_size; k++) {
+                        if (tmp[i+j+k] == UCHAR_MAX) {
+                            tmp[i+j+k] = 0;
                         } else {
-                            z.value[i+j+k] += 1;
+                            tmp[i+j+k] += 1;
                             break;
                         }
                     }
                 } else {
-                    z.value[i+j+1] += t[1] + carry;
+                    tmp[i+j+1] += t[1] + carry;
                 }
             }
         }
     }
+
+    z.setSize(z_size);
+    for (size_t i = 0; i < z_size; i++) {
+        z.value[i] = tmp[i];
+    }
+    free(tmp);
     removeHeadZero(z, z);
 }
 
 void sqr(ymp_class &z, const ymp_class &x) {
+#if 1
+    unsigned char *tmp = NULL;
+    size_t z_size = x.N*2;
+    tmp = (unsigned char*)malloc(z_size*sizeof(unsigned char));
+    if (tmp == NULL) {
+        abort();
+    }
+    memset(tmp, 0, z_size);
+
+    unsigned char t[2]; 
+    unsigned char carry;
+    for (size_t i = 0; i < x.N; i++) {
+        for (size_t j = i+1; j < x.N; j++) {
+            carry = 0;
+            mul(t, x.value[i], x.value[j]);
+            if (UCHAR_MAX - tmp[i+j] < t[0]) {
+                carry = 1;
+            }
+            tmp[i+j] += t[0];
+              
+            if (UCHAR_MAX - tmp[i+j+1] < t[1]) { // carry 発生
+                tmp[i+j+1] += t[1] + carry;
+                for (size_t k = 2; i+j+k < z_size; k++) {
+                    if (tmp[i+j+k] == UCHAR_MAX) {
+                        tmp[i+j+k] = 0;
+                    } else {
+                        tmp[i+j+k] += 1;
+                        break;
+                    }
+                }
+            } else {
+                if (carry == 1 && tmp[i+j+1] + t[1] == UCHAR_MAX) {
+                    tmp[i+j+1] = 0;
+                    for (size_t k = 2; i+j+k < z_size; k++) {
+                        if (tmp[i+j+k] == UCHAR_MAX) {
+                            tmp[i+j+k] = 0;
+                        } else {
+                            tmp[i+j+k] += 1;
+                            break;
+                        }
+                    }
+                } else {
+                    tmp[i+j+1] += t[1] + carry;
+                }
+            }
+        }
+    }
+    lshift(tmp, z_size, 1);
+
+    for (size_t i = 0; i < x.N; i++) {
+        carry = 0;
+        mul(t, x.value[i], x.value[i]);
+        if (UCHAR_MAX - tmp[2*i] < t[0]) {
+            carry = 1;
+        }
+        tmp[2*i] += t[0];
+          
+        if (UCHAR_MAX - tmp[2*i+1] < t[1]) { // carry 発生
+            tmp[2*i+1] += t[1] + carry;
+            for (size_t k = 2; 2*i+k < z_size; k++) {
+                if (tmp[2*i+k] == UCHAR_MAX) {
+                    tmp[2*i+k] = 0;
+                } else {
+                    tmp[2*i+k] += 1;
+                    break;
+                }
+            }
+        } else {
+            if (carry == 1 && tmp[2*i+1] + t[1] == UCHAR_MAX) {
+                tmp[2*i+1] = 0;
+                for (size_t k = 2; 2*i+k < z_size; k++) {
+                    if (tmp[2*i+k] == UCHAR_MAX) {
+                        tmp[2*i+k] = 0;
+                    } else {
+                        tmp[2*i+k] += 1;
+                        break;
+                    }
+                }
+            } else {
+                tmp[2*i+1] += t[1] + carry;
+            }
+        }
+    }
+    z.setSize(z_size);
+    for (size_t i = 0; i < z_size; i++) {
+        z.value[i] = tmp[i];
+    }
+    removeHeadZero(z, z);
+    free(tmp);
+#else
     z.setSize(2*x.N);
     unsigned char t[2]; 
     unsigned char carry;
@@ -303,4 +405,5 @@ void sqr(ymp_class &z, const ymp_class &x) {
         }
     }
     removeHeadZero(z, z);
+#endif
 }
