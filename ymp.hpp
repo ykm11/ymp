@@ -8,6 +8,7 @@ class ymp_class;
 void dump(const ymp_class &v);
 void dump(const unsigned char v[], size_t n);
 void add(ymp_class &z, const ymp_class &x, const ymp_class &y);
+void sub(ymp_class &z, const ymp_class &x, const ymp_class &y);
 void mul(ymp_class &z, const ymp_class &x, const ymp_class &y);
 void sqr(ymp_class &z, const ymp_class &x);
 int cmp(const ymp_class &x, const ymp_class &y);
@@ -107,6 +108,24 @@ inline void valCopy(ymp_class &z, const ymp_class &x) {
     z.setSize(x.N);
     for (size_t i = 0; i < x.N; i++) z.value[i] = x.value[i];
 }
+
+inline void removeHeadZero(ymp_class &z, const ymp_class &x) {
+    size_t k = x.N;
+    unsigned char *tmp;
+    while (x.value[k-1] == 0x00) {
+        k--;
+    }
+    tmp = (unsigned char*)malloc(k*sizeof(unsigned char));
+    if (tmp == NULL) {
+        abort();
+    }
+    for (size_t i = 0; i < k; i++) tmp[i] = x.value[i];
+
+    z.setSize(k);
+    for (size_t i = 0; i < k; i++) z.value[i] = tmp[i];
+    free(tmp); 
+}
+
 
 inline void lshift(unsigned char v[], size_t n, size_t shift) {
     v[n-1] <<= shift;

@@ -164,6 +164,45 @@ void add(ymp_class &z, const ymp_class &x, const ymp_class &y) {
 #endif
 }
 
+void sub(ymp_class &z, const ymp_class &x, const ymp_class &y) { // z <- x - y
+    if (cmp(x, y) < 0) { // x < y
+        // 符号情報の変更
+        sub(z, y, x);
+        return;
+    }
+    unsigned char borrow;
+    size_t max_index;
+    if (x.N < y.N) {
+        max_index = x.N;
+        valCopy(z, y);
+    } else {
+        max_index = y.N;
+        valCopy(z, x);
+    }
+    borrow = 0;
+    for (size_t i = 0; i < max_index; i++) {
+        if (x.value[i] < y.value[i]) { 
+            z.value[i] = x.value[i] - y.value[i] - borrow;
+            borrow = 1;
+        } else {
+            if (x.value[i] - y.value[i] == 0) {
+                if (borrow == 1) {
+                    z.value[i] = UCHAR_MAX;
+                } else {
+                    z.value[i] = 0;
+                    borrow = 0;
+                }
+            } else {
+                z.value[i] = x.value[i] - y.value[i] - borrow;
+                borrow = 0;
+            }
+        }
+    }
+    if (borrow == 1) {
+        z.value[z.N-1] -= 1;
+    }
+}
+
 void mul(ymp_class &z, const ymp_class &x, const ymp_class &y) {
     z.setSize(2*x.N);
     unsigned char t[2]; 
@@ -204,6 +243,7 @@ void mul(ymp_class &z, const ymp_class &x, const ymp_class &y) {
             }
         }
     }
+    removeHeadZero(z, z);
 }
 
 void sqr(ymp_class &z, const ymp_class &x) {
@@ -282,4 +322,5 @@ void sqr(ymp_class &z, const ymp_class &x) {
             }
         }
     }
+    removeHeadZero(z, z);
 }
