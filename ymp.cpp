@@ -19,6 +19,10 @@ void ymp_class::setSize(size_t new_size) {
     memset(value, 0, N);
 }
 
+void ymp_class::neg(ymp_class &z) {
+    z.isNeg = !z.isNeg;
+}
+
 void dump(const unsigned char v[], size_t n) {
     printf("0x");
     for (size_t i = 0; i < n; i++) {

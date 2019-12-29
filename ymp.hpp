@@ -22,12 +22,28 @@ class ymp_class {
 public:
     size_t N;
     unsigned char *value;
-    //bool isNeg;
+    bool isNeg;
 
-    ymp_class() : N(0), value(NULL) {}
-    ymp_class(uint32_t val) : N(4) {
-        //isNeg = false;
+    ymp_class() : N(1), value(NULL), isNeg(false) {}
+    ymp_class(int val) : N(1), isNeg(false) {
         unsigned char *ptr;
+        if (val == 0) {
+            ptr = (unsigned char*)malloc(1*sizeof(unsigned char));
+            if (ptr == NULL) {
+                abort();
+            }
+            value = ptr;
+            value[0] = 0;
+            return;
+        }
+
+        if (val < 0) {
+            isNeg = true;
+            val = -val;
+        }
+        while (((val >> (N*8)) & 0xFF) != 0x00) {
+            N++;
+        }
         ptr = (unsigned char*)malloc(N*sizeof(unsigned char));
         if (ptr == NULL) {
             abort();
@@ -91,7 +107,7 @@ public:
                         value[N-i-1] += ((unsigned char)found);
                     }
                 }
-                //isNeg = false;
+                isNeg = false;
                 break;
             }
             default:
@@ -101,11 +117,13 @@ public:
     }
 
     void setSize(size_t new_size);
+    static void neg(ymp_class &z);
 };
 
 
 inline void valCopy(ymp_class &z, const ymp_class &x) {
     z.setSize(x.N);
+    z.isNeg = x.isNeg;
     for (size_t i = 0; i < x.N; i++) z.value[i] = x.value[i];
 }
 
