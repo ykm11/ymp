@@ -39,8 +39,8 @@ void dump(const ymp_class &v) {
     if (v.isNeg) {
         printf("-");
     }    
-    printf("0x");
-    for (size_t i = v.N; i > 0; i--) {
+    printf("0x%X", v.value[v.N-1]);
+    for (size_t i = v.N-1; i > 0; i--) {
         printf("%02X", v.value[i-1]);
     }
     puts("");
@@ -69,12 +69,12 @@ void add(ymp_class &z, const ymp_class &x, const ymp_class &y) {
     if (x.N < y.N) {
         max_index = x.N;
         z_size = y.N;
-        tmp = (unsigned char*)malloc(y.N*sizeof(unsigned char));
+        tmp = (unsigned char*)malloc(z_size*sizeof(unsigned char));
         for (size_t i = 0; i < y.N; i++) tmp[i] = y.value[i];
     } else {
         max_index = y.N;
-        z_size = x.N;
-        tmp = (unsigned char*)malloc(x.N*sizeof(unsigned char));
+        z_size = x.N+1;
+        tmp = (unsigned char*)malloc(z_size*sizeof(unsigned char));
         for (size_t i = 0; i < x.N; i++) tmp[i] = x.value[i];
     }
     if (tmp == NULL) {
@@ -101,7 +101,7 @@ void add(ymp_class &z, const ymp_class &x, const ymp_class &y) {
         }
     }
     if (carry == 1) {
-        for (size_t k = 0; max_index+k < z.N; k++) {
+        for (size_t k = 0; max_index+k < z_size; k++) {
             if (tmp[max_index+k] == UCHAR_MAX) {
                 tmp[max_index+k] = 0;
             } else {
@@ -112,10 +112,11 @@ void add(ymp_class &z, const ymp_class &x, const ymp_class &y) {
     }
 
     z.setSize(z_size);
-    for (size_t i = 0; i < z.N; i++) {
+    for (size_t i = 0; i < z_size; i++) {
         z.value[i] = tmp[i];
     }
     free(tmp);
+    removeHeadZero(z, z);
 }
 
 void sub(ymp_class &z, const ymp_class &x, const ymp_class &y) { // z <- x - y
