@@ -116,6 +116,24 @@ public:
         }
     }
 
+    ymp_class operator+(const ymp_class &x) const {
+        ymp_class z;
+        add(z, *this, x);
+        return z;
+    }
+
+    ymp_class operator-(const ymp_class &x) const {
+        ymp_class z;
+        sub(z, *this, x);
+        return z;
+    }
+
+    ymp_class operator*(const ymp_class &x) const {
+        ymp_class z;
+        mul(z, *this, x);
+        return z;
+    }
+
     void setSize(size_t new_size);
     static void neg(ymp_class &z);
 };

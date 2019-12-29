@@ -1,21 +1,29 @@
 #include "ymp.hpp"
 
+#include <iostream>
+
 int main() {
     ymp_class a, b, c;
-    a = ymp_class("12345123201832849018390218382031", 16);
-    b = ymp_class("FFFF321302183281048183802814931483080FFF", 16);
+    a = ymp_class("100FFDEADBEEF321382183029138201103823284291402840211A1", 16);
+    b = ymp_class("100330F28310381983842830B1ADEADBEEF2132913890218321008", 16);
     dump(c);
+    std::cout << "a = ";
     dump(a);
+    std::cout << "b = ";
     dump(b);
 
+    std::cout << "Add:\n";
     add(c, a, b);
     dump(c);
 
-    mul(c, a, a);
+    std::cout << "Sub:\n";
+    sub(c, a, b);
     dump(c);
 
-    memset(c.value, 0, c.N);
-    sqr(c, a);
+    std::cout << "Mul:\n";
+    mul(a, a, b);
+    dump(a);
+    sqr(c, c);
     dump(c);
 
 }
