@@ -46,29 +46,41 @@ void dump(const ymp_class &v) {
     puts("");
 }
 
-int cmp(const ymp_class &x, const ymp_class &y) {
-    if (x.N > y.N) {
+char cmp(const ymp_class &x, const ymp_class &y) {
+    if (x.isNeg != y.isNeg) {
+        if(x.isNeg) {
+            return -1;
+        }
         return 1;
+    }
+    char negFlag = 1;
+    if (x.isNeg && y.isNeg) {
+        negFlag = -1;
+    }
+
+    if (x.N > y.N) {
+        return 1*negFlag;
     } else if (x.N < y.N) {
-        return -1;
+        return -1*negFlag;
     }
 
     for (size_t i = x.N; i > 0; i--) {
         if (x.value[i-1] > y.value[i-1]) {
-            return 1;
+            return 1*negFlag;
         } else if(x.value[i-1] < y.value[i-1]) {
-            return -1;
+            return -1*negFlag;
         }
     }
     return 0;
 }
 
 void add(ymp_class &z, const ymp_class &x, const ymp_class &y) {
+    // TODO 符号
     unsigned char *tmp = NULL;
     size_t max_index, z_size;
     if (x.N < y.N) {
         max_index = x.N;
-        z_size = y.N;
+        z_size = y.N+1;
         tmp = (unsigned char*)malloc(z_size*sizeof(unsigned char));
         for (size_t i = 0; i < y.N; i++) tmp[i] = y.value[i];
     } else {
@@ -120,9 +132,11 @@ void add(ymp_class &z, const ymp_class &x, const ymp_class &y) {
 }
 
 void sub(ymp_class &z, const ymp_class &x, const ymp_class &y) { // z <- x - y
+    // TODO 符号
     if (cmp(x, y) < 0) { // x < y
         // 符号情報の変更
         sub(z, y, x);
+        ymp_class::neg(z);
         return;
     }
 
