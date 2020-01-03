@@ -3,12 +3,12 @@
 
 #include <iostream>
 
-void mul(unsigned char z[], unsigned char x0, unsigned char y0) {
+void mul(uint8_t z[], uint8_t x0, uint8_t y0) {
 #if 0
-    unsigned char z0, z2;
-    unsigned char x1;
-    unsigned char y1;
-    unsigned char carry0, carry1, tmp;
+    uint8_t z0, z2;
+    uint8_t x1;
+    uint8_t y1;
+    uint8_t carry0, carry1, tmp;
     uint16_t z1;
     x1 = (x0 >> 4);
     y1 = (y0 >> 4);

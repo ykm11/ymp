@@ -4,8 +4,8 @@
 
 int main() {
     ymp_class a, b, c;
-    a = ymp_class("100FFDEADBEEF321382183029138201103823284291402840211A1", 16);
-    b = ymp_class("100330F28310381983842830B1ADEADBEEF2132913890218321008", 16);
+    b = ymp_class("10000000", 16);
+    a = ymp_class("1", 16);
     dump(c);
     std::cout << "a = ";
     dump(a);
@@ -25,5 +25,10 @@ int main() {
     dump(a);
     sqr(c, c);
     dump(c);
+
+    ymp_class x, y;
+    x = -110;
+    y = -110;
+    printf("%d\n", cmp(x, y));
 
 }

@@ -1,3 +1,4 @@
 #pragma once
+#include <stdint.h>
 
-void mul(unsigned char z[], unsigned char x0, unsigned char y0);
+void mul(uint8_t z[], uint8_t x0, uint8_t y0);

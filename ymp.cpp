@@ -9,7 +9,7 @@ void ymp_class::setSize(size_t new_size) {
         memset(value, 0, N);
         free(value);
     }
-    unsigned char *ptr = (unsigned char*)malloc(new_size*sizeof(unsigned char));
+    uint8_t *ptr = (uint8_t*)malloc(new_size*sizeof(uint8_t));
     if (ptr == NULL) {
         fprintf(stderr, "Memory allocate error");
         abort();
@@ -23,7 +23,7 @@ void ymp_class::neg(ymp_class &z) {
     z.isNeg = !z.isNeg;
 }
 
-void dump(const unsigned char v[], size_t n) {
+void dump(const uint8_t v[], size_t n) {
     printf("0x");
     for (size_t i = 0; i < n; i++) {
         printf("%02X", v[n-i-1]);
@@ -76,24 +76,24 @@ char cmp(const ymp_class &x, const ymp_class &y) {
 
 void add(ymp_class &z, const ymp_class &x, const ymp_class &y) {
     // TODO 符号
-    unsigned char *tmp = NULL;
+    uint8_t *tmp = NULL;
     size_t max_index, z_size;
     if (x.N < y.N) {
         max_index = x.N;
         z_size = y.N+1;
-        tmp = (unsigned char*)malloc(z_size*sizeof(unsigned char));
+        tmp = (uint8_t*)malloc(z_size*sizeof(uint8_t));
         for (size_t i = 0; i < y.N; i++) tmp[i] = y.value[i];
     } else {
         max_index = y.N;
         z_size = x.N+1;
-        tmp = (unsigned char*)malloc(z_size*sizeof(unsigned char));
+        tmp = (uint8_t*)malloc(z_size*sizeof(uint8_t));
         for (size_t i = 0; i < x.N; i++) tmp[i] = x.value[i];
     }
     if (tmp == NULL) {
         abort();
     }
 
-    unsigned char carry = 0;
+    uint8_t carry = 0;
     for (size_t i = 0; i < max_index; i++) {
         if ((UCHAR_MAX - x.value[i]) < y.value[i]) {
             tmp[i] = x.value[i] + y.value[i] + carry;
@@ -140,18 +140,18 @@ void sub(ymp_class &z, const ymp_class &x, const ymp_class &y) { // z <- x - y
         return;
     }
 
-    unsigned char *tmp = NULL;
-    unsigned char borrow;
+    uint8_t *tmp = NULL;
+    uint8_t borrow;
     size_t max_index, z_size;
     if (x.N < y.N) {
         max_index = x.N;
         z_size = y.N;
-        tmp = (unsigned char*)malloc(y.N*sizeof(unsigned char));
+        tmp = (uint8_t*)malloc(y.N*sizeof(uint8_t));
         for (size_t i = 0; i < y.N; i++) tmp[i] = y.value[i];
     } else {
         max_index = y.N;
         z_size = x.N;
-        tmp = (unsigned char*)malloc(x.N*sizeof(unsigned char));
+        tmp = (uint8_t*)malloc(x.N*sizeof(uint8_t));
         for (size_t i = 0; i < x.N; i++) tmp[i] = x.value[i];
     }
 
@@ -199,15 +199,15 @@ void sub(ymp_class &z, const ymp_class &x, const ymp_class &y) { // z <- x - y
 }
 
 void mul(ymp_class &z, const ymp_class &x, const ymp_class &y) {
-    unsigned char *tmp = NULL;
+    uint8_t *tmp = NULL;
     size_t z_size = x.N + y.N;
-    tmp = (unsigned char*)malloc(z_size*sizeof(unsigned char));
+    tmp = (uint8_t*)malloc(z_size*sizeof(uint8_t));
     if (tmp == NULL) {
         abort();
     }
     memset(tmp, 0, z_size);
-    unsigned char t[2]; 
-    unsigned char carry;
+    uint8_t t[2]; 
+    uint8_t carry;
     for (size_t i = 0; i < x.N; i++) {
         for (size_t j = 0; j < y.N; j++) {
             carry = 0;
@@ -255,16 +255,16 @@ void mul(ymp_class &z, const ymp_class &x, const ymp_class &y) {
 }
 
 void sqr(ymp_class &z, const ymp_class &x) {
-    unsigned char *tmp = NULL;
+    uint8_t *tmp = NULL;
     size_t z_size = x.N*2;
-    tmp = (unsigned char*)malloc(z_size*sizeof(unsigned char));
+    tmp = (uint8_t*)malloc(z_size*sizeof(uint8_t));
     if (tmp == NULL) {
         abort();
     }
     memset(tmp, 0, z_size);
 
-    unsigned char t[2]; 
-    unsigned char carry;
+    uint8_t t[2]; 
+    uint8_t carry;
     for (size_t i = 0; i < x.N; i++) {
         for (size_t j = i+1; j < x.N; j++) {
             carry = 0;
@@ -352,12 +352,12 @@ void div(ymp_class &z, const ymp_class &x, const ymp_class &y) { // z = x / y
         z.setSize(1);
         return;
     }
-    unsigned char *quot;
-    unsigned char *rem;
-    quot = (unsigned char *)malloc((x.N - y.N + 1) * sizeof(unsigned char));
-    rem = (unsigned char *)malloc(y.N * sizeof(unsigned char));
-    x_tmp = (unsigned char *)malloc(x.N * sizeof(unsigned char));
-    tmp = (unsigned char *)malloc(x.N * sizeof(unsigned char));
+    uint8_t *quot;
+    uint8_t *rem;
+    quot = (uint8_t *)malloc((x.N - y.N + 1) * sizeof(uint8_t));
+    rem = (uint8_t *)malloc(y.N * sizeof(uint8_t));
+    x_tmp = (uint8_t *)malloc(x.N * sizeof(uint8_t));
+    tmp = (uint8_t *)malloc(x.N * sizeof(uint8_t));
     if (quot == NULL || rem == NULL || x_tmp == NULL || tmp == NULL) {
         abort();
     }

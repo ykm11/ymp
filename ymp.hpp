@@ -4,9 +4,11 @@
 #include <iostream>
 #include <string>
 
+#include <stdint.h>
+
 class ymp_class;
 void dump(const ymp_class &v);
-void dump(const unsigned char v[], size_t n);
+void dump(const uint8_t v[], size_t n);
 void add(ymp_class &z, const ymp_class &x, const ymp_class &y);
 void sub(ymp_class &z, const ymp_class &x, const ymp_class &y);
 void mul(ymp_class &z, const ymp_class &x, const ymp_class &y);
@@ -15,21 +17,21 @@ void div(ymp_class &z, const ymp_class &x, const ymp_class &y);
 char cmp(const ymp_class &x, const ymp_class &y);
 
 inline void valCopy(ymp_class &z, const ymp_class &x);
-inline void lshift(unsigned char v[], size_t n, size_t shift);
+inline void lshift(uint8_t v[], size_t n, size_t shift);
 inline bool isStrNops(size_t found);
 
 
 class ymp_class {
 public:
     size_t N;
-    unsigned char *value;
+    uint8_t *value;
     bool isNeg;
 
     ymp_class() : N(1), value(NULL), isNeg(false) {}
     ymp_class(int val) : N(1), isNeg(false) {
-        unsigned char *ptr;
+        uint8_t *ptr;
         if (val == 0) {
-            ptr = (unsigned char*)malloc(1*sizeof(unsigned char));
+            ptr = (uint8_t*)malloc(1*sizeof(uint8_t));
             if (ptr == NULL) {
                 abort();
             }
@@ -45,7 +47,7 @@ public:
         while (((val >> (N*8)) & 0xFF) != 0x00) {
             N++;
         }
-        ptr = (unsigned char*)malloc(N*sizeof(unsigned char));
+        ptr = (uint8_t*)malloc(N*sizeof(uint8_t));
         if (ptr == NULL) {
             abort();
         }
@@ -55,15 +57,15 @@ public:
         }        
     }
 
-    ymp_class(std::string str, unsigned char base) {
+    ymp_class(std::string str, uint8_t base) {
         switch (base) {
             case 16: {
                 std::transform(str.begin(), str.end(), str.begin(), ::toupper);
                 const std::string hex = "0123456789ABCDEF";
                 size_t l = str.length();
                 N = (l + 1)/2;
-                unsigned char *ptr;
-                ptr = (unsigned char*)malloc(N*sizeof(unsigned char));
+                uint8_t *ptr;
+                ptr = (uint8_t*)malloc(N*sizeof(uint8_t));
                 if (ptr == NULL) {
                     abort();
                 }
@@ -76,14 +78,14 @@ public:
                             fputs("Invalid sqeuance", stderr);
                             abort();
                         }
-                        value[N-i-1] = ((unsigned char)found) << 4;
+                        value[N-i-1] = ((uint8_t)found) << 4;
 
                         found = hex.find(str[2*i+1]);
                         if (isStrNops(found)) {
                             fputs("Invalid sqeuance", stderr);
                             abort();
                         }
-                        value[N-i-1] += (unsigned char)found;
+                        value[N-i-1] += (uint8_t)found;
                     }
                 } else {
                     found = hex.find(str[0]);
@@ -91,21 +93,21 @@ public:
                             fputs("Invalid sqeuance", stderr);
                             abort();
                     }   
-                    value[N-1] = (unsigned char)found;
+                    value[N-1] = (uint8_t)found;
                     for (size_t i = 1; i < N; i++) {
                         found = hex.find(str[2*i-1]);
                         if (isStrNops(found)) {
                             fputs("Invalid sqeuance", stderr);
                             abort();
                         }                    
-                        value[N-i-1] = ((unsigned char)found) << 4;
+                        value[N-i-1] = ((uint8_t)found) << 4;
 
                         found = hex.find(str[2*i]);
                         if (isStrNops(found)) {
                             fputs("Invalid sqeuance", stderr);
                             abort();
                         }                    
-                        value[N-i-1] += ((unsigned char)found);
+                        value[N-i-1] += ((uint8_t)found);
                     }
                 }
                 isNeg = false;
@@ -148,7 +150,7 @@ inline void valCopy(ymp_class &z, const ymp_class &x) {
 
 inline void removeHeadZero(ymp_class &z, const ymp_class &x) {
     size_t k = x.N;
-    unsigned char *tmp;
+    uint8_t *tmp;
     while (x.value[k-1] == 0x00) {
         k--;
     }
@@ -156,7 +158,7 @@ inline void removeHeadZero(ymp_class &z, const ymp_class &x) {
         return;
     }
 
-    tmp = (unsigned char*)malloc(k*sizeof(unsigned char));
+    tmp = (uint8_t*)malloc(k*sizeof(uint8_t));
     if (tmp == NULL) {
         abort();
     }
@@ -168,7 +170,7 @@ inline void removeHeadZero(ymp_class &z, const ymp_class &x) {
 }
 
 
-inline void lshift(unsigned char v[], size_t n, size_t shift) {
+inline void lshift(uint8_t v[], size_t n, size_t shift) {
     v[n-1] <<= shift;
     for (size_t i = n-1; i > 0; i--) {
         v[i] += (v[i-1] >> (8 - shift));
