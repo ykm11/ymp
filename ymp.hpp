@@ -11,6 +11,7 @@ void add(ymp_class &z, const ymp_class &x, const ymp_class &y);
 void sub(ymp_class &z, const ymp_class &x, const ymp_class &y);
 void mul(ymp_class &z, const ymp_class &x, const ymp_class &y);
 void sqr(ymp_class &z, const ymp_class &x);
+void div(ymp_class &z, const ymp_class &x, const ymp_class &y);
 char cmp(const ymp_class &x, const ymp_class &y);
 
 inline void valCopy(ymp_class &z, const ymp_class &x);

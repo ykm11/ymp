@@ -345,3 +345,41 @@ void sqr(ymp_class &z, const ymp_class &x) {
     removeHeadZero(z, z);
     free(tmp);
 }
+
+void div(ymp_class &z, const ymp_class &x, const ymp_class &y) { // z = x / y
+    /*
+    if (cmp(x, y) < 0) {
+        z.setSize(1);
+        return;
+    }
+    unsigned char *quot;
+    unsigned char *rem;
+    quot = (unsigned char *)malloc((x.N - y.N + 1) * sizeof(unsigned char));
+    rem = (unsigned char *)malloc(y.N * sizeof(unsigned char));
+    x_tmp = (unsigned char *)malloc(x.N * sizeof(unsigned char));
+    tmp = (unsigned char *)malloc(x.N * sizeof(unsigned char));
+    if (quot == NULL || rem == NULL || x_tmp == NULL || tmp == NULL) {
+        abort();
+    }
+    memset(quot, 0, x.N - y.N + 1);
+    memset(rem, 0, y.N);
+    memset(tmp, 0, x.N);
+    for (size_t i = 0; i < x.N; i++) x_tmp[i] = x.value[i];
+    // Quotient
+
+    for (size_t i = 0; i < y.N; i++) {
+        tmp[x.N - y.N + i] = y.value[i];
+    }
+    //
+
+    z.setSize(x.N - y.N + 1);
+    for (size_t i = 0; i < z.N; i++) {
+        z.value[i] = quot[i];
+    }
+    removeHeadZero(z, z);
+    free(quot);
+    free(rem);
+    */
+}
+
+
